@@ -24,6 +24,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 SHORT_TIME_FORMAT = '%Y.%m.%d %H:%M'
+DAY_NAMES = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+
 
 #handler
 def get_text_repr(doc):
@@ -110,7 +112,6 @@ def stats(update: Update, _: CallbackContext) -> None:
     user = update.message.from_user
     user_coll = get_user_collection(user)
     response = 'Hay logeados {} mensajes\n'.format(user_coll.count())
-
 
     client = MongoClient('mongodb://mongodb:27017/')
     db = client['telbot']
