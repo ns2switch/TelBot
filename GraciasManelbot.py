@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# pylint: disable=C0116
 import json
 import random
 import string
@@ -28,9 +26,8 @@ SHORT_TIME_FORMAT = '%Y.%m.%d %H:%M'
 DAY_NAMES = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
 
 #handler
-TOKEN =''
+TOKEN=''
 IP_API=''
-
 
 def get_text_repr(doc):
     time = doc['time']
@@ -135,10 +132,11 @@ def stats(update: Update, _: CallbackContext) -> None:
 def ip_search(update: Update, _: CallbackContext) -> None:
     user = update.message.from_user
     text =  update.message.text.replace('/ip', '')
-    response = Ipstack.get(text, api_key=IP_API)
-    if response:
+    ip = re.findall( r'[0-9]+(?:\.[0-9]+){3}', text)
+    try:
+     response = Ipstack.get(ip[0], api_key=IP_API)
      data = 'La ip: ' + response.ip_address + ' esta en ' + response.city + ' situada en ' +  response.country + ' con las coordenadas: ' + str(response.latitude) + ',' + str(response.longitude) + ' en el mapita esta: ' + 'http://maps.google.com/maps?z=12&t=m&q=loc:' + str(response.latitude) + '+' + str(response.longitude)
-    else:
+    except:
      data = 'No hay datos'
     update.message.reply_text(data)
 
