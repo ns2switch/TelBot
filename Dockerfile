@@ -3,7 +3,10 @@ RUN addgroup -S swuser  && adduser -S swuser -G swuser
 RUN mkdir /tbot
 WORKDIR /tbot
 COPY requirements.txt /tbot
+RUN pip install --upgrade pip
+RUN apk add --update --no-cache g++ libxslt-dev gcc musl-dev python3-dev libffi-dev openssl-dev cargo
 RUN pip install -r requirements.txt
+RUN apk del g++ libxslt-dev gcc musl-dev python3-dev libffi-dev openssl-dev cargo
 COPY . /tbot
 USER swuser
 CMD [ "python", "./GraciasManel.py" ]

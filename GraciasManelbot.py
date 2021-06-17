@@ -7,6 +7,7 @@ import datetime
 import logging
 import time
 import re
+from ip2geotools.databases.noncommercial import Ipstack
 from random import randrange
 from uuid import uuid4
 from datetime import date , datetime , timedelta
@@ -26,8 +27,11 @@ logger = logging.getLogger(__name__)
 SHORT_TIME_FORMAT = '%Y.%m.%d %H:%M'
 DAY_NAMES = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
 
-
 #handler
+TOKEN =''
+IP_API=''
+
+
 def get_text_repr(doc):
     time = doc['time']
     day_shortname = get_day_shortname(time)
@@ -113,6 +117,7 @@ def stats(update: Update, _: CallbackContext) -> None:
     user_coll = get_user_collection(user)
     response = 'Hay logeados {} mensajes\n'.format(user_coll.count())
 
+
     client = MongoClient('mongodb://mongodb:27017/')
     db = client['telbot']
     coll_counts = [db[coll].count() for coll in db.collection_names()]
@@ -126,6 +131,16 @@ def stats(update: Update, _: CallbackContext) -> None:
 
     update.message.reply_text(response, parse_mode='Markdown')
 
+
+def ip_search(update: Update, _: CallbackContext) -> None:
+    user = update.message.from_user
+    text =  update.message.text.replace('/ip', '')
+    response = Ipstack.get(text, api_key=IP_API)
+    if response:
+     data = 'La ip: ' + response.ip_address + ' esta en ' + response.city + ' situada en ' +  response.country + ' con las coordenadas: ' + str(response.latitude) + ',' + str(response.longitude) + ' en el mapita esta: ' + 'http://maps.google.com/maps?z=12&t=m&q=loc:' + str(response.latitude) + '+' + str(response.longitude)
+    else:
+     data = 'No hay datos'
+    update.message.reply_text(data)
 
 def help_command(update: Update, _: CallbackContext) -> None:
     update.message.reply_text('Help!')
@@ -221,6 +236,7 @@ def main() -> None :
     dispatcher.add_handler (CommandHandler ("pass", pass_command))
     dispatcher.add_handler (CommandHandler ("stats", stats))
     dispatcher.add_handler (CommandHandler ("recuerda", save))
+    dispatcher.add_handler (CommandHandler ("ip", ip_search))
     dispatcher.add_handler (CommandHandler ("busca", search))
 
     # on non command i.e message - echo the message on Telegram
@@ -236,4 +252,3 @@ def main() -> None :
 
 if __name__ == '__main__':
     main()
-
